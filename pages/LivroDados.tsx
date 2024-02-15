@@ -111,4 +111,4 @@ const LivroDados = () => {
     );
 };
 
-export default LivroDados;
+export default LivroDados

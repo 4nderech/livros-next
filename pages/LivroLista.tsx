@@ -72,4 +72,4 @@ const LivroLista = () => {
     )
 }
 
-export default LivroLista;
+export default LivroLista
