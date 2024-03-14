@@ -4,40 +4,33 @@ import Head from 'next/head';
 import { Menu } from '../componentes/Menu';
 import Livro from '../classes/modelo/Livro';
 import { LinhaLivro } from '../componentes/LinhaLivro';
-
-const baseURL = 'http://localhost:3000/api/livros';
+import ControleLivro from '@/classes/controle/ControleLivros';
+import Codigo from './api/livros/[codigo]';
 
 const LivroLista = () => {
+    const controleLivros = new ControleLivro();
     const [livros, setLivros] = useState<Livro[]>([]);
     const [carregado, setCarregado] = useState(false);
 
-    const obterLivros = async () => {
-        const resposta = await fetch(baseURL);
-        const dados = await resposta.json();
-        setLivros(dados);
-        setCarregado(true);
-    }
-
-    const excluirLivro = async (codigo: number) => {
-        const resposta = await fetch(`${baseURL}/${codigo}`, {
-            method: 'DELETE'
-        });
-        return resposta.ok;
-    }
-
-    const excluir = async (codigo: number) => {
-        const sucesso = await excluirLivro(codigo);
-        if (sucesso) {
-            setCarregado(false);
-        }
-    }
-
     useEffect(() => {
-        if (!carregado) {
-            obterLivros().then(() => setCarregado(true));
-        }
-    }, [carregado]);
+        controleLivros.obterLivros().then((resultado) => {
+            setLivros(resultado);
+            setCarregado(true);
+        });
+    });
+    
+    const excluir = (codigo: string) => {
+        controleLivros.excluir(codigo).then(() => {
+            setCarregado(false);
+            controleLivros.obterLivros().then((resultado) => {
+                setLivros(resultado);
+                setCarregado(true);
+            });
+        });
+    };
+        
 
+    
     return (
         <div className={styles.container}>
             <Head>
@@ -57,11 +50,11 @@ const LivroLista = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {livros.map((livro) => (
+                            {livros.map((livro, index) => (
                                 <LinhaLivro
-                                    key={livro.codigo}
+                                    key={index}
                                     livro={livro}
-                                    excluir={() => excluir(livro.codigo)}
+                                    excluir={(codigo: number) => excluir(String(codigo))}
                                 />
                             ))}
                         </tbody>
@@ -72,4 +65,4 @@ const LivroLista = () => {
     )
 }
 
-export default LivroLista
+export default LivroLista;

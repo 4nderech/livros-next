@@ -1,55 +1,33 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from "next/router";
 import ControleEditora from '../classes/controle/ControleEditora';
+import ControleLivro from '@/classes/controle/ControleLivros';
 import Livro from '../classes/modelo/Livro';
 import { Menu } from '../componentes/Menu';
 import Head from 'next/head';
 import styles from '../styles/Home.module.css';
 
 const LivroDados = () => {
-    const controleEditora = new ControleEditora();
-    const opcoes = controleEditora.getEditoras().map((editora) => ({
-        value: editora.codEditora,
-        text: editora.nome,
-    }));
+    const controleLivros = new ControleLivro();
     const [titulo, setTitulo] = useState('');
     const [resumo, setResumo] = useState('');
     const [autores, setAutores] = useState('');
-    const [codEditora, setCodEditora] = useState(opcoes[0].value);
+    const [codEditora, setCodEditora] = useState('');
     const navigate = useRouter().push;
-
-    const baseURL = 'http://localhost:3000/api/livros';
-
-    const incluirLivro = async (livro: Livro) => {
-        const response = await fetch(baseURL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(livro),
-        });
-        return response.ok;
-    };
-
-    const tratarCombo = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        setCodEditora(Number(event.target.value));
-    };
 
     const incluir = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        const livro = new Livro(
-            0,
-            codEditora,
+        const livro: Livro = {
+            codigo: '',
+            codEditora: codEditora.toString(),
             titulo,
             resumo,
-            autores.split('\n'),
-        );
-        const incluiu = await incluirLivro(livro);
-        if (incluiu) {
-            navigate('/LivroLista');
-        }
+            autores: autores.split('\n'),
+        };
+        await controleLivros.incluir(livro);
+        navigate('/LivroLista');
     };
-
+    
     return (
         <div className={styles.container}>
             <Head>
@@ -86,12 +64,7 @@ const LivroDados = () => {
                                 className='form-control'
                                 id="editora"
                                 value={codEditora}
-                                onChange={tratarCombo}>
-                                {opcoes.map((opcao) => (
-                                    <option key={opcao.value} value={opcao.value}>
-                                        {opcao.text}
-                                    </option>
-                                ))}
+                                onChange={(event) => setCodEditora(event.target.value)}>
                             </select>
                         </div>
                         <div className='form-group'>
@@ -111,4 +84,4 @@ const LivroDados = () => {
     );
 };
 
-export default LivroDados
+export default LivroDados;

@@ -1,13 +1,13 @@
 class Livro {
-    codigo: number;
-    codEditora: number;
+    codigo: string;
+    codEditora: string;
     titulo: string;
     resumo: string;
     autores: string[];
 
     constructor(
-        codigo: number,
-        codEditora: number,
+        codigo: string,
+        codEditora: string,
         titulo: string,
         resumo: string,
         autores: string[],
